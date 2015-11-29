@@ -1,0 +1,366 @@
+\documentclass[10pt,a4paper]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\author{Erika Martinez}
+\title{Muestreo En R}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\maketitle
+\newpage
+
+3. TAMAÑOS DE MUESTRA ESTRATIFICADOS
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{#Cálculo de las proporciones por estrato}
+\hlstd{df}\hlkwb{<-} \hlstd{ENAHO2013} \hlopt{%>%}
+  \hlkwd{mutate}\hlstd{(}\hlkwc{TamHog}\hlstd{=}\hlkwd{as.numeric}\hlstd{(TamHog),}
+         \hlkwc{phu}\hlstd{=}\hlkwd{ifelse}\hlstd{(TamHog}\hlopt{>}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{))} \hlopt{%>%}
+  \hlkwd{select}\hlstd{(FACTOR}\hlopt{:}\hlstd{ZONA,TamHog,phu,}\hlopt{-}\hlstd{REGION)} \hlopt{%>%}
+  \hlkwd{group_by}\hlstd{(SEGMENTO,CUESTIONARIO,HOGAR,ZONA)} \hlopt{%>%}
+  \hlkwd{summarise}\hlstd{(}\hlkwc{TamHog}\hlstd{=}\hlkwd{mean}\hlstd{(TamHog),}
+            \hlkwc{phu}\hlstd{=}\hlkwd{mean}\hlstd{(phu))} \hlopt{%>%}
+  \hlkwd{mutate}\hlstd{(}\hlkwc{id}\hlstd{=}\hlkwd{paste0}\hlstd{(SEGMENTO,CUESTIONARIO,HOGAR,ZONA))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}\%>\%"{}}}\begin{alltt}
+\hlstd{r}\hlkwb{<-}\hlnum{0.05}
+
+\hlstd{nsizeR}\hlkwb{<-} \hlkwd{nsize}\hlstd{(}\hlkwc{x}\hlstd{=df}\hlopt{$}\hlstd{TamHog,}\hlkwc{r}\hlstd{=r,}\hlkwc{alpha}\hlstd{=}\hlnum{0.05}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}nsize"{}}}\begin{alltt}
+\hlstd{nsizeR}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'nsizeR' no encontrado}}\begin{alltt}
+\hlstd{Estratos}\hlkwb{<-} \hlstd{df} \hlopt{%>%}
+  \hlkwd{select}\hlstd{(ZONA,TamHog)} \hlopt{%>%}
+  \hlkwd{group_by}\hlstd{(ZONA)} \hlopt{%>%}
+  \hlkwd{summarise}\hlstd{(}\hlkwc{n}\hlstd{=}\hlkwd{n}\hlstd{(),}
+            \hlkwc{s}\hlstd{=}\hlkwd{sd}\hlstd{(TamHog))} \hlopt{%>%}
+  \hlkwd{mutate}\hlstd{(}\hlkwc{p}\hlstd{=n}\hlopt{/}\hlkwd{sum}\hlstd{(n))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}\%>\%"{}}}\begin{alltt}
+  \hlstd{Estratos}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'Estratos' no encontrado}}\begin{alltt}
+\hlstd{Estratos}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'Estratos' no encontrado}}\begin{alltt}
+\hlcom{#Asignación de la muestra proporcional a los estratos}
+\hlstd{nsizeProp}\hlkwb{<-}\hlkwd{nstrata}\hlstd{(}\hlkwc{n}\hlstd{=nsizeR[[}\hlnum{2}\hlstd{]],}\hlkwc{wh}\hlstd{=Estratos[,}\hlnum{4}\hlstd{],}\hlkwc{method}\hlstd{=}\hlstr{"proportional"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}nstrata"{}}}\begin{alltt}
+\hlstd{nsizeProp}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'nsizeProp' no encontrado}}\begin{alltt}
+\hlcom{#Asignación de la muestra óptima a los estratos}
+
+\hlcom{#Costo de entrevista por estrato}
+\hlstd{ch}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{)}
+
+\hlstd{nsizeOpt}\hlkwb{<-}\hlkwd{nstrata}\hlstd{(}\hlkwc{n}\hlstd{=nsizeR[[}\hlnum{2}\hlstd{]],}\hlkwc{wh}\hlstd{=Estratos[,}\hlnum{4}\hlstd{],}\hlkwc{sh}\hlstd{=Estratos[,}\hlnum{3}\hlstd{],ch,}\hlkwc{method}\hlstd{=}\hlstr{"optimal"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}nstrata"{}}}\begin{alltt}
+\hlstd{nsizeOpt}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'nsizeOpt' no encontrado}}\begin{alltt}
+\hlcom{#Asignación de la muestra óptima a los estratos(asume costos iguales)}
+
+\hlstd{nsizeNeyman}\hlkwb{<-}\hlkwd{nstrata}\hlstd{(}\hlkwc{n}\hlstd{=nsizeR[[}\hlnum{2}\hlstd{]],}\hlkwc{wh}\hlstd{=Estratos[,}\hlnum{4}\hlstd{],}\hlkwc{sh}\hlstd{=Estratos[,}\hlnum{3}\hlstd{],}\hlkwc{method}\hlstd{=}\hlstr{"neyman"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}nstrata"{}}}\begin{alltt}
+\hlstd{nsizeNeyman}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'nsizeNeyman' no encontrado}}\end{kframe}
+\end{knitrout}
+
+EJEMPLO:
+Una pequeña ciudad contiene un total de 1800 hogares. La ciudad está dividida en 
+tres distritos que contienen 820, 540 y 440 hogares, respectivamente. Una muestra
+aleatoria estratificada de 310 hogares contiene 120, 100 y 90 hogares,
+respectivamente de estos tres distritos. Se pide a los miembros de la muestra que
+calculen su factura total de electricidad consumida en los meses de invierno. Las
+respectivas medias muestrales son $290, $352 y $427, y las respectivas desviaciones
+estándar muestrales son $47, $61 y $93.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{mstr.m}\hlkwb{=}\hlkwa{function}\hlstd{(}\hlkwc{N}\hlstd{,}\hlkwc{n}\hlstd{,}\hlkwc{media}\hlstd{,}\hlkwc{s}\hlstd{)}
+\hlstd{\{ Ntot}\hlkwb{=}\hlkwd{sum}\hlstd{(N)}
+\hlstd{f}\hlkwb{=}\hlstd{n}\hlopt{/}\hlstd{N}
+\hlstd{mestr}\hlkwb{=}\hlkwd{crossprod}\hlstd{(N,media)}\hlopt{/}\hlstd{Ntot}
+\hlstd{varm}\hlkwb{=}\hlstd{(s}\hlopt{^}\hlnum{2}\hlopt{/}\hlstd{n)}\hlopt{*}\hlstd{(}\hlnum{1}\hlopt{-}\hlstd{f)}
+\hlstd{vstr}\hlkwb{=}\hlkwd{crossprod}\hlstd{(N}\hlopt{^}\hlnum{2}\hlstd{,varm)}\hlopt{/}\hlstd{Ntot}\hlopt{^}\hlnum{2}
+\hlstd{setr}\hlkwb{=}\hlkwd{sqrt}\hlstd{(vstr)}
+\hlstd{a1}\hlkwb{=}\hlstd{mestr}\hlopt{-}\hlnum{1.96}\hlopt{*}\hlstd{setr}
+\hlstd{b1}\hlkwb{=}\hlstd{mestr}\hlopt{+}\hlnum{1.96}\hlopt{*}\hlstd{setr}
+\hlstd{a2}\hlkwb{=}\hlstd{Ntot}\hlopt{*}\hlstd{a1}
+\hlstd{b2}\hlkwb{=}\hlstd{Ntot}\hlopt{*}\hlstd{b1}
+\hlkwd{cat}\hlstd{(}\hlstr{"media: IC = "}\hlstd{,a1,} \hlstr{"--"}\hlstd{,b1,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\hlkwd{cat}\hlstd{(}\hlstr{"total: IC = "}\hlstd{,a2,} \hlstr{"--"}\hlstd{,b2,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\hlstd{\}}
+
+\hlstd{N}\hlkwb{=}\hlkwd{c}\hlstd{(}\hlnum{820}\hlstd{,}\hlnum{540}\hlstd{,}\hlnum{440}\hlstd{)}
+\hlstd{n}\hlkwb{=}\hlkwd{c}\hlstd{(}\hlnum{120}\hlstd{,}\hlnum{100}\hlstd{,}\hlnum{90}\hlstd{)}
+\hlstd{media}\hlkwb{=}\hlkwd{c}\hlstd{(}\hlnum{290}\hlstd{,}\hlnum{352}\hlstd{,}\hlnum{427}\hlstd{)}
+\hlstd{s}\hlkwb{=}\hlkwd{c}\hlstd{(}\hlnum{47}\hlstd{,}\hlnum{61}\hlstd{,}\hlnum{93}\hlstd{)}
+
+\hlkwd{mstr.m}\hlstd{(N,n,media,s)}
+\end{alltt}
+\begin{verbatim}
+## media: IC =  335.7203 -- 348.4574 
+## total: IC =  604296.6 -- 627223.4
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+EJEMPLO: 
+En una ciudad que tiene tres distritos se quiere conocer la proporción de hogares con alguna persona profesional. Se toman muestras aleatorias de esos hogares en cada un de los tres distritos y se obtienen los resultados 
+Distrito 1: Ni=1200, ni=180, Profesionales=80, Proporción=0.4444
+Distrito 2: Ni=1350, ni=190, Profesionales=50, Proporción=0.2632
+Distrito 3: Ni=1050, ni=140, Profesionales=45, Proporción=0.3214
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{N}\hlkwb{=}\hlkwd{c}\hlstd{(}\hlnum{1200}\hlstd{,}\hlnum{1350}\hlstd{,}\hlnum{1050}\hlstd{)}
+\hlstd{n}\hlkwb{=}\hlkwd{c}\hlstd{(}\hlnum{180}\hlstd{,}\hlnum{190}\hlstd{,}\hlnum{140}\hlstd{)}
+\hlstd{exitos}\hlkwb{=}\hlkwd{c}\hlstd{(}\hlnum{80}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{45}\hlstd{)}
+
+ \hlstd{\{f}\hlkwb{=}\hlstd{n}\hlopt{/}\hlstd{N}
+ \hlstd{p}\hlkwb{=}\hlstd{exitos}\hlopt{/}\hlstd{n; q}\hlkwb{=}\hlnum{1}\hlopt{-}\hlstd{p}
+ \hlstd{pestr}\hlkwb{=}\hlkwd{crossprod}\hlstd{(N,p)}\hlopt{/}\hlstd{Ntot}
+ \hlstd{varp}\hlkwb{=}\hlstd{(p}\hlopt{*}\hlstd{q}\hlopt{/}\hlstd{(n}\hlopt{-}\hlnum{1}\hlstd{))}\hlopt{*}\hlstd{(}\hlnum{1}\hlopt{-}\hlstd{f)}
+ \hlstd{vstr}\hlkwb{=}\hlkwd{crossprod}\hlstd{(N}\hlopt{^}\hlnum{2}\hlstd{,varp)}\hlopt{/}\hlstd{Ntot}\hlopt{^}\hlnum{2}
+ \hlstd{setr}\hlkwb{=}\hlkwd{sqrt}\hlstd{(vstr)}
+ \hlstd{a}\hlkwb{=}\hlstd{pestr}\hlopt{-}\hlnum{1.96}\hlopt{*}\hlstd{setr}
+ \hlstd{b}\hlkwb{=}\hlstd{pestr}\hlopt{+}\hlnum{1.96}\hlopt{*}\hlstd{setr}
+ \hlkwd{cat}\hlstd{(}\hlstr{"proporción: IC = "}\hlstd{,a,} \hlstr{"--"}\hlstd{,b,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\hlstd{\}}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'Ntot' no encontrado}}\begin{alltt}
+\hlkwd{mstr.p}\hlstd{(N,n,exitos)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}mstr.p"{}}}\end{kframe}
+\end{knitrout}
+
+Muestreo aleatorio por conglomerados: 
+
+Generar el dataframe de UPMS y su respectivo tamaño
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{UPMs}\hlkwb{<-} \hlstd{df} \hlopt{%>%}
+  \hlkwd{mutate}\hlstd{(}\hlkwc{TamHog}\hlstd{=}\hlkwd{as.numeric}\hlstd{(TamHog))} \hlopt{%>%}
+  \hlkwd{select}\hlstd{(SEGMENTO,ZONA,TamHog)} \hlopt{%>%}
+  \hlkwd{group_by}\hlstd{(ZONA,SEGMENTO)} \hlopt{%>%}
+  \hlkwd{summarise}\hlstd{(}\hlkwc{Mta}\hlstd{=}\hlkwd{n}\hlstd{())} \hlopt{%>%}
+  \hlkwd{arrange}\hlstd{(}\hlkwd{desc}\hlstd{(ZONA),SEGMENTO)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}\%>\%"{}}}\begin{alltt}
+\hlkwd{head}\hlstd{(UPMs)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in head(UPMs): objeto 'UPMs' no encontrado}}\begin{alltt}
+\hlcom{#Se asigna proporcionalmente la muestra a cada estrato}
+
+\hlcom{#Recordemos la distribución proporcional de los estratos:}
+\hlstd{nsizeProp}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'nsizeProp' no encontrado}}\begin{alltt}
+\hlcom{#Cálculo del número de UPMs por estrato}
+\hlstd{b}\hlkwb{<-}\hlnum{5}
+\hlstd{aurbano}\hlkwb{<-} \hlkwd{ceiling}\hlstd{(nsizeProp[}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{]}\hlopt{/}\hlstd{b)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'nsizeProp' no encontrado}}\begin{alltt}
+\hlstd{arural}\hlkwb{<-} \hlkwd{ceiling}\hlstd{(nsizeProp[}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{]}\hlopt{/}\hlstd{b)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'nsizeProp' no encontrado}}\begin{alltt}
+\hlcom{#Unir en un solo objeto para facilitar input de función}
+\hlstd{asizeppt}\hlkwb{<-}\hlkwd{rbind}\hlstd{(aurbano,arural)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in rbind(aurbano, arural): objeto 'aurbano' no encontrado}}\begin{alltt}
+\hlstd{asizeppt}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'asizeppt' no encontrado}}\begin{alltt}
+\hlcom{#Selección de la muestra con PPT(sistemática)}
+\hlkwd{install.packages}\hlstd{(}\hlstr{"pps"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Installing package into 'C:/Users/Ery/Documents/R/win-library/3.2'\\\#\# (as 'lib' is unspecified)}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in contrib.url(repos, "{}source"{}): trying to use CRAN without setting a mirror}}\begin{alltt}
+\hlkwd{library}\hlstd{(pps)}
+\hlstd{muestrappt}\hlkwb{<-}\hlkwd{ppssstrat}\hlstd{(}\hlkwc{sizes}\hlstd{=UPMs}\hlopt{$}\hlstd{Mta,}\hlkwc{stratum}\hlstd{=UPMs}\hlopt{$}\hlstd{ZONA,}\hlkwc{n}\hlstd{=asizeppt[,}\hlnum{1}\hlstd{])}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in ppssstrat(sizes = UPMs\$Mta, stratum = UPMs\$ZONA, n = asizeppt[, : objeto 'asizeppt' no encontrado}}\begin{alltt}
+\hlstd{muestraUPMs}\hlkwb{<-}\hlstd{UPMs[muestrappt,]}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'UPMs' no encontrado}}\begin{alltt}
+\hlcom{#Muestra de la selección}
+\hlkwd{head}\hlstd{(muestraUPMs)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in head(muestraUPMs): objeto 'muestraUPMs' no encontrado}}\begin{alltt}
+\hlkwd{tail}\hlstd{(muestraUPMs)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in tail(muestraUPMs): objeto 'muestraUPMs' no encontrado}}\begin{alltt}
+\hlcom{#Procedimiento para seleccionar submuestras en cada cluster de tamaño fijo}
+
+\hlcom{#Listado de segmentos seleccionados}
+\hlstd{segs}\hlkwb{<-} \hlkwd{unique}\hlstd{(muestraUPMs}\hlopt{$}\hlstd{SEGMENTO)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in unique(muestraUPMs\$SEGMENTO): objeto 'muestraUPMs' no encontrado}}\begin{alltt}
+\hlstd{sample}\hlkwb{<-} \hlkwd{list}\hlstd{()}
+
+\hlcom{#Identifica el número de columna del id(se requiere para el ciclo)}
+
+\hlstd{idcolnum}\hlkwb{<-}\hlkwd{which}\hlstd{(} \hlkwd{colnames}\hlstd{(df)}\hlopt{==}\hlstr{"id"} \hlstd{)}
+
+\hlcom{#Ciclo para seleccionar la muestra en cada segmento}
+\hlkwa{for}\hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(segs))\{}
+  \hlstd{subsample}\hlkwb{<-}\hlkwd{data.frame}\hlstd{(df[}\hlkwd{which}\hlstd{(df}\hlopt{$}\hlstd{SEGMENTO}\hlopt{==}\hlstd{segs[i]),])}
+  \hlstd{sample[[i]]}\hlkwb{<-}\hlkwd{sys.sample}\hlstd{(}\hlkwd{nrow}\hlstd{(subsample),b)}
+  \hlcom{#Previene de los números que se pasan del total del segmento}
+  \hlcom{#if(sample[[i]][b]>nrow(subsample))\{}
+  \hlcom{#  sample[[i]][b]<-1}
+  \hlcom{#  \}}
+  \hlcom{#Asigna en cada elemento de las submuestras los elem. seleccionados}
+  \hlstd{sample[[i]]}\hlkwb{<-}\hlstd{subsample[}\hlkwd{unlist}\hlstd{(sample[[i]]),idcolnum]}
+\hlstd{\}}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): objeto 'segs' no encontrado}}\begin{alltt}
+\hlcom{#Genera el data frame de ids seleccionados(ya que estaban en una lista)}
+\hlstd{sampledf}\hlkwb{<-}\hlkwd{data.frame}\hlstd{(}\hlkwc{id}\hlstd{=}\hlkwd{unlist}\hlstd{(sample))}
+
+\hlcom{#Uniendo el data frame de datos con la muestra seleccionada mendiante la llave creada}
+\hlstd{muestrappt}\hlkwb{<-}\hlkwd{inner_join}\hlstd{(}\hlkwd{unique}\hlstd{(sampledf),}\hlkwd{unique}\hlstd{(df),}\hlkwc{by}\hlstd{=}\hlstr{"id"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): no se pudo encontrar la función "{}inner\_join"{}}}\begin{alltt}
+\hlcom{#Verificar el procedimiento}
+\hlkwd{head}\hlstd{(muestrappt)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in head(muestrappt): objeto 'muestrappt' no encontrado}}\begin{alltt}
+\hlkwd{install.packages}\hlstd{(}\hlstr{"descr"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Installing package into 'C:/Users/Ery/Documents/R/win-library/3.2'\\\#\# (as 'lib' is unspecified)}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in contrib.url(repos, "{}source"{}): trying to use CRAN without setting a mirror}}\begin{alltt}
+\hlkwd{library}\hlstd{(descr)}
+\hlkwd{freq}\hlstd{(muestrappt}\hlopt{$}\hlstd{ZONA)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in freq(muestrappt\$ZONA): objeto 'muestrappt' no encontrado}}\end{kframe}
+\end{knitrout}
+
+
+
+\end{document}

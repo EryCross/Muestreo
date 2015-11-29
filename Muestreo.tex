@@ -1,0 +1,295 @@
+\documentclass[10pt,a4paper]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\author{Erika Martinez}
+\title{Muestreo En R}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\maketitle
+\newpage
+
+1. SELECCION DE MUESTRAS SIMPLES
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{crime}\hlkwb{<-}\hlkwd{data.frame}\hlstd{(crimtab)}
+\hlkwd{dim}\hlstd{(crime)}
+\end{alltt}
+\begin{verbatim}
+## [1] 924   3
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Selección de la muestra}
+\hlcom{#Tamaño de la muestra}
+\hlstd{n}\hlkwb{<-}\hlnum{30}
+
+\hlstd{muestramia}\hlkwb{<-} \hlkwd{sample}\hlstd{(}\hlnum{1}\hlopt{:}\hlkwd{nrow}\hlstd{(crime),}\hlkwc{size}\hlstd{=n,}\hlkwc{replace}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\hlstd{muestramia}
+\end{alltt}
+\begin{verbatim}
+##  [1] 543 863 617 324 394  30 130 325 667 640 753 127 913 692 289 787 662
+## [18] 115 132  96 743 133 638 805 172 678 816 114  43 859
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Selección de muestras simples con dplyr}
+\hlkwd{install.packages}\hlstd{(}\hlstr{"dplyr"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Installing package into 'C:/Users/Ery/Documents/R/win-library/3.2'\\\#\# (as 'lib' is unspecified)}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in contrib.url(repos, "{}source"{}): trying to use CRAN without setting a mirror}}\begin{alltt}
+\hlkwd{library}\hlstd{(dplyr)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'dplyr'\\\#\# \\\#\# The following objects are masked from 'package:stats':\\\#\# \\\#\#\ \ \ \  filter, lag\\\#\# \\\#\# The following objects are masked from 'package:base':\\\#\# \\\#\#\ \ \ \  intersect, setdiff, setequal, union}}\begin{alltt}
+\hlcom{#Muestra sin reemplazo}
+\hlstd{crimemuestramia2}\hlkwb{<-} \hlstd{crime} \hlopt{%>%}
+  \hlkwd{sample_n}\hlstd{(}\hlkwc{size}\hlstd{=n,}\hlkwc{replace}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+
+\hlkwd{head}\hlstd{(crimemuestramia2)}
+\end{alltt}
+\begin{verbatim}
+##     Var1   Var2 Freq
+## 44   9.5 144.78    0
+## 903 11.4 195.58    0
+## 669 13.2 180.34    3
+## 35  12.8 142.24    0
+## 458 13.1 167.64    0
+## 850 10.3 193.04    0
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Muestra con pesos}
+\hlstd{crimemuestramia3}\hlkwb{<-} \hlstd{crime} \hlopt{%>%}
+  \hlkwd{sample_n}\hlstd{(}\hlkwc{size}\hlstd{=n,}\hlkwc{weight}\hlstd{=Freq)}
+
+\hlkwd{head}\hlstd{(crimemuestramia3)}
+\end{alltt}
+\begin{verbatim}
+##     Var1   Var2 Freq
+## 447   12 167.64   42
+## 398 11.3  165.1   39
+## 314 11.3 160.02   24
+## 270 11.1 157.48   22
+## 489   12 170.18   39
+## 570 11.7 175.26    9
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Muestra con una proporción de casos}
+\hlstd{crimemuestramia4}\hlkwb{<-} \hlstd{crime} \hlopt{%>%}
+  \hlkwd{sample_frac}\hlstd{(}\hlnum{0.05}\hlstd{)}
+
+\hlkwd{head}\hlstd{(crimemuestramia4);}\hlkwd{dim}\hlstd{(crimemuestramia4)}
+\end{alltt}
+\begin{verbatim}
+##     Var1   Var2 Freq
+## 404 11.9  165.1   27
+## 124 13.3 147.32    0
+## 551  9.8 175.26    0
+## 462 13.5 167.64    0
+## 189 11.4  152.4    3
+## 577 12.4 175.26    7
+## [1] 46  3
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+EJEMPLO:
+Una empresa tiene 189 contables. En una muestra aleatoria de 50 de ellos, el número
+medio de horas trabajadas en sobretiempo en una semana fue de 9.7 horas con una
+desviación estándar de 6.2 horas. Halle un intervalo del 95 porciento de confianza
+para el número medio de horas trabajadas en sobretiempo en una semana.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{msa.m}\hlkwb{=}\hlkwa{function}\hlstd{(}\hlkwc{N}\hlstd{,}\hlkwc{n}\hlstd{,}\hlkwc{media}\hlstd{,}\hlkwc{desv}\hlstd{)}
+\hlstd{\{ f}\hlkwb{=}\hlstd{n}\hlopt{/}\hlstd{N}
+\hlstd{varmed}\hlkwb{=}\hlstd{(desv}\hlopt{^}\hlnum{2}\hlopt{/}\hlstd{n)}\hlopt{*}\hlstd{(}\hlnum{1}\hlopt{-}\hlstd{f)}
+\hlstd{desmed}\hlkwb{=}\hlkwd{sqrt}\hlstd{(varmed)}
+\hlstd{a1}\hlkwb{=}\hlstd{media}\hlopt{-}\hlnum{1.96}\hlopt{*}\hlstd{desmed}
+\hlstd{b1}\hlkwb{=}\hlstd{media}\hlopt{+}\hlnum{1.96}\hlopt{*}\hlstd{desmed}
+\hlstd{a2}\hlkwb{=}\hlstd{N}\hlopt{*}\hlstd{a1}
+\hlstd{b2}\hlkwb{=}\hlstd{N}\hlopt{*}\hlstd{b1}
+\hlkwd{cat}\hlstd{(}\hlstr{"media: IC = "}\hlstd{,a1,} \hlstr{"--"}\hlstd{,b1,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\hlkwd{cat}\hlstd{(}\hlstr{"total: IC = "}\hlstd{,a2,} \hlstr{"--"}\hlstd{,b2,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\hlstd{\}}
+
+\hlkwd{msa.m}\hlstd{(}\hlnum{189}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{9.7}\hlstd{,}\hlnum{6.2}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## media: IC =  8.226198 -- 11.1738 
+## total: IC =  1554.751 -- 2111.849
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+EJEMPLO:
+Una agencia bancaria que cuenta con un total de 4800 clientes, los que están
+clasificados como clientes tipo 1 ó tipo 0. Una muestra aleatoria de 120 clientes:
+89 tipo "0" y 31 tipo "1", fue usada para hallar un intervalo de confianza del 95
+para la proporción de clientes que fueron denominados "tipo 1". 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{msa.p}\hlkwb{=}\hlkwa{function}\hlstd{(}\hlkwc{N}\hlstd{,}\hlkwc{n}\hlstd{,}\hlkwc{exitos}\hlstd{)}
+\hlstd{\{ f}\hlkwb{=}\hlstd{n}\hlopt{/}\hlstd{N}
+ \hlstd{p}\hlkwb{=}\hlstd{exitos}\hlopt{/}\hlstd{n ; q}\hlkwb{=}\hlnum{1}\hlopt{-}\hlstd{p}
+ \hlstd{varp}\hlkwb{=}\hlstd{(p}\hlopt{*}\hlstd{q}\hlopt{/}\hlstd{(n}\hlopt{-}\hlnum{1}\hlstd{))}\hlopt{*}\hlstd{(}\hlnum{1}\hlopt{-}\hlstd{f)}
+ \hlstd{desp}\hlkwb{=}\hlkwd{sqrt}\hlstd{(varp)}
+ \hlstd{a}\hlkwb{=}\hlstd{p}\hlopt{-}\hlnum{1.96}\hlopt{*}\hlstd{desp}
+ \hlstd{b}\hlkwb{=}\hlstd{p}\hlopt{+}\hlnum{1.96}\hlopt{*}\hlstd{desp}
+ \hlkwd{cat}\hlstd{(}\hlstr{"proporcion: IC = "}\hlstd{,a,} \hlstr{"--"}\hlstd{,b,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\hlstd{\}}
+
+\hlkwd{msa.p}\hlstd{(}\hlnum{4800}\hlstd{,}\hlnum{120}\hlstd{,}\hlnum{31}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## proporcion: IC =  0.1806765 -- 0.3359901
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+SELECCION DE MUESTRAS SISTEMÁTICAS
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{install.packages}\hlstd{(}\hlstr{"devtools"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Installing package into 'C:/Users/Ery/Documents/R/win-library/3.2'\\\#\# (as 'lib' is unspecified)}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in contrib.url(repos, "{}source"{}): trying to use CRAN without setting a mirror}}\begin{alltt}
+\hlkwd{library}\hlstd{(devtools)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# WARNING: Rtools is required to build R packages, but is not currently installed.\\\#\# \\\#\# Please download and install Rtools 3.3 from http://cran.r-project.org/bin/windows/Rtools/ and then run find\_rtools().}}\begin{alltt}
+\hlkwd{install_github}\hlstd{(}\hlstr{"DFJL/SamplingUtil"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Downloading GitHub repo DFJL/SamplingUtil@master\\\#\# Installing SamplingUtil\\\#\# "{}C:/PROGRA\textasciitilde{}1/R/R-32\textasciitilde{}1.2/bin/x64/R"{} --no-site-file --no-environ --no-save\ \ \textbackslash{}\\\#\#\ \  --no-restore CMD INSTALL\ \ \textbackslash{}\\\#\#\ \  "{}C:/Users/Ery/AppData/Local/Temp/RtmpeaJvNP/devtoolsaf85b06b72/DFJL-SamplingUtil-e08400c"{}\ \ \textbackslash{}\\\#\#\ \  --library="{}C:/Users/Ery/Documents/R/win-library/3.2"{} --install-tests}}\begin{alltt}
+\hlcom{#Cargar libreria:}
+
+\hlkwd{library}\hlstd{(SamplingUtil)}
+
+\hlstd{muestrasis}\hlkwb{<-} \hlkwd{sys.sample}\hlstd{(}\hlkwc{N}\hlstd{=}\hlkwd{nrow}\hlstd{(crime),}\hlkwc{n}\hlstd{=}\hlnum{30}\hlstd{)}
+\hlstd{muestrasis}
+\end{alltt}
+\begin{verbatim}
+##  [1]  17  47  77 107 137 167 197 227 257 287 317 347 377 407 437 467 497
+## [18] 527 557 587 617 647 677 707 737 767 797 827 857 887
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Asignar los elementos de la muestra al data frame de datos}
+\hlstd{crimemuestrasis}\hlkwb{<-} \hlstd{crime[muestrasis, ]}
+
+\hlkwd{head}\hlstd{(crimemuestrasis)}
+\end{alltt}
+\begin{verbatim}
+##     Var1   Var2 Freq
+## 17    11 142.24    0
+## 47   9.8 144.78    0
+## 77  12.8 144.78    0
+## 107 11.6 147.32    0
+## 137 10.4 149.86    1
+## 167 13.4 149.86    0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+EJEMPLO:
+Desde una población de N = 12 hogares, se selecciona una muestra de 4 hogares para
+investigar acerca de la variable "número de personas que viven en el hogar"
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{msa.m}\hlstd{(}\hlnum{12}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{4.50}\hlstd{,}\hlnum{1.290994}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## media: IC =  3.46699 -- 5.53301 
+## total: IC =  41.60388 -- 66.39612
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+EJEMPLO:
+Un auditor, examinando un total de 840 facturas pendientes de cobro, de una empresa
+tomó una muestra aleatoria de 120 facturas. Usando los datos del archivo "muestreo1
+.xls", mediante muestreo sistemático de 1 en 7
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{msa.m}\hlstd{(}\hlnum{840}\hlstd{,}\hlnum{120}\hlstd{,}\hlnum{131.3674}\hlstd{,}\hlnum{43.71545}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## media: IC =  124.1259 -- 138.6089 
+## total: IC =  104265.8 -- 116431.5
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+
+
+\end{document}
+

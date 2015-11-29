@@ -1,0 +1,132 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\author{Erika Martinez}
+\title{Muestreo En R}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+1. SELECCION DE MUESTRAS SIMPLES
+
+<<>>=
+crime<-data.frame(crimtab)
+dim(crime)
+
+#Selección de la muestra
+#Tamaño de la muestra
+n<-30
+
+muestramia<- sample(1:nrow(crime),size=n,replace=FALSE)
+muestramia
+
+#Selección de muestras simples con dplyr
+install.packages("dplyr")
+library(dplyr)
+
+#Muestra sin reemplazo
+crimemuestramia2<- crime %>%
+  sample_n(size=n,replace=FALSE)
+
+head(crimemuestramia2)
+
+#Muestra con pesos
+crimemuestramia3<- crime %>%
+  sample_n(size=n,weight=Freq)
+
+head(crimemuestramia3)
+
+#Muestra con una proporción de casos
+crimemuestramia4<- crime %>%
+  sample_frac(0.05)
+
+head(crimemuestramia4);dim(crimemuestramia4)
+@
+
+EJEMPLO:
+Una empresa tiene 189 contables. En una muestra aleatoria de 50 de ellos, el número
+medio de horas trabajadas en sobretiempo en una semana fue de 9.7 horas con una
+desviación estándar de 6.2 horas. Halle un intervalo del 95 porciento de confianza
+para el número medio de horas trabajadas en sobretiempo en una semana.
+
+<<>>=
+msa.m=function(N,n,media,desv)
+{ f=n/N
+varmed=(desv^2/n)*(1-f)
+desmed=sqrt(varmed)
+a1=media-1.96*desmed
+b1=media+1.96*desmed
+a2=N*a1
+b2=N*b1
+cat("media: IC = ",a1, "--",b1,"\n")
+cat("total: IC = ",a2, "--",b2,"\n")
+}
+
+msa.m(189,50,9.7,6.2)
+@
+
+EJEMPLO:
+Una agencia bancaria que cuenta con un total de 4800 clientes, los que están
+clasificados como clientes tipo 1 ó tipo 0. Una muestra aleatoria de 120 clientes:
+89 tipo "0" y 31 tipo "1", fue usada para hallar un intervalo de confianza del 95
+para la proporción de clientes que fueron denominados "tipo 1". 
+<<>>=
+msa.p=function(N,n,exitos)
+{ f=n/N
+ p=exitos/n ; q=1-p
+ varp=(p*q/(n-1))*(1-f)
+ desp=sqrt(varp)
+ a=p-1.96*desp
+ b=p+1.96*desp
+ cat("proporcion: IC = ",a, "--",b,"\n")
+}
+
+msa.p(4800,120,31)
+@
+
+SELECCION DE MUESTRAS SISTEMÁTICAS
+
+<<>>=
+install.packages("devtools")
+library(devtools)
+install_github("DFJL/SamplingUtil")
+
+#Cargar libreria:
+
+library(SamplingUtil)
+
+muestrasis<- sys.sample(N=nrow(crime),n=30)
+muestrasis
+
+#Asignar los elementos de la muestra al data frame de datos
+crimemuestrasis<- crime[muestrasis, ]
+
+head(crimemuestrasis)
+@
+
+EJEMPLO:
+Desde una población de N = 12 hogares, se selecciona una muestra de 4 hogares para
+investigar acerca de la variable "número de personas que viven en el hogar"
+<<>>=
+msa.m(12,4,4.50,1.290994)
+@
+
+EJEMPLO:
+Un auditor, examinando un total de 840 facturas pendientes de cobro, de una empresa
+tomó una muestra aleatoria de 120 facturas. Usando los datos del archivo "muestreo1
+.xls", mediante muestreo sistemático de 1 en 7
+
+<<>>=
+msa.m(840,120,131.3674,43.71545)
+@
+
+
+
+
+
+\end{document}
+

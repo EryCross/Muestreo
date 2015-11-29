@@ -1,0 +1,191 @@
+\documentclass[10pt,a4paper]{article}
+\author{Erika Martinez}
+\title{Muestreo En R}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+3. TAMAÑOS DE MUESTRA ESTRATIFICADOS
+
+<<>>=
+#Cálculo de las proporciones por estrato
+df<- ENAHO2013 %>%  
+  mutate(TamHog=as.numeric(TamHog), 
+         phu=ifelse(TamHog>1,0,1)) %>% 
+  select(FACTOR:ZONA,TamHog,phu,-REGION) %>% 
+  group_by(SEGMENTO,CUESTIONARIO,HOGAR,ZONA) %>% 
+  summarise(TamHog=mean(TamHog),
+            phu=mean(phu)) %>%
+  mutate(id=paste0(SEGMENTO,CUESTIONARIO,HOGAR,ZONA)) 
+r<-0.05
+
+nsizeR<- nsize(x=df$TamHog,r=r,alpha=0.05)
+
+nsizeR
+
+Estratos<- df %>%
+  select(ZONA,TamHog) %>%
+  group_by(ZONA) %>%
+  summarise(n=n(),
+            s=sd(TamHog)) %>%
+  mutate(p=n/sum(n))
+  Estratos
+Estratos
+
+#Asignación de la muestra proporcional a los estratos
+nsizeProp<-nstrata(n=nsizeR[[2]],wh=Estratos[,4],method="proportional")
+
+nsizeProp
+
+#Asignación de la muestra óptima a los estratos
+
+#Costo de entrevista por estrato
+ch<-c(5,10)
+
+nsizeOpt<-nstrata(n=nsizeR[[2]],wh=Estratos[,4],sh=Estratos[,3],ch,method="optimal")
+nsizeOpt
+
+#Asignación de la muestra óptima a los estratos(asume costos iguales)
+
+nsizeNeyman<-nstrata(n=nsizeR[[2]],wh=Estratos[,4],sh=Estratos[,3],method="neyman")
+nsizeNeyman
+
+@
+
+EJEMPLO:
+Una pequeña ciudad contiene un total de 1800 hogares. La ciudad está dividida en 
+tres distritos que contienen 820, 540 y 440 hogares, respectivamente. Una muestra
+aleatoria estratificada de 310 hogares contiene 120, 100 y 90 hogares,
+respectivamente de estos tres distritos. Se pide a los miembros de la muestra que
+calculen su factura total de electricidad consumida en los meses de invierno. Las
+respectivas medias muestrales son $290, $352 y $427, y las respectivas desviaciones
+estándar muestrales son $47, $61 y $93.
+<<>>=
+mstr.m=function(N,n,media,s)
+{ Ntot=sum(N)
+f=n/N
+mestr=crossprod(N,media)/Ntot
+varm=(s^2/n)*(1-f)
+vstr=crossprod(N^2,varm)/Ntot^2
+setr=sqrt(vstr)
+a1=mestr-1.96*setr
+b1=mestr+1.96*setr
+a2=Ntot*a1
+b2=Ntot*b1
+cat("media: IC = ",a1, "--",b1,"\n")
+cat("total: IC = ",a2, "--",b2,"\n")
+}
+
+N=c(820,540,440)
+n=c(120,100,90)
+media=c(290,352,427)
+s=c(47,61,93)
+
+mstr.m(N,n,media,s)
+@
+
+EJEMPLO: 
+En una ciudad que tiene tres distritos se quiere conocer la proporción de hogares con alguna persona profesional. Se toman muestras aleatorias de esos hogares en cada un de los tres distritos y se obtienen los resultados 
+Distrito 1: Ni=1200, ni=180, Profesionales=80, Proporción=0.4444
+Distrito 2: Ni=1350, ni=190, Profesionales=50, Proporción=0.2632
+Distrito 3: Ni=1050, ni=140, Profesionales=45, Proporción=0.3214
+
+<<>>=
+N=c(1200,1350,1050)
+n=c(180,190,140)
+exitos=c(80,50,45)
+
+ {f=n/N
+ p=exitos/n; q=1-p
+ pestr=crossprod(N,p)/Ntot
+ varp=(p*q/(n-1))*(1-f)
+ vstr=crossprod(N^2,varp)/Ntot^2
+ setr=sqrt(vstr)
+ a=pestr-1.96*setr
+ b=pestr+1.96*setr
+ cat("proporción: IC = ",a, "--",b,"\n")
+}
+
+mstr.p(N,n,exitos)
+@
+
+Muestreo aleatorio por conglomerados: 
+
+Generar el dataframe de UPMS y su respectivo tamaño
+<<>>=
+UPMs<- df %>%
+  mutate(TamHog=as.numeric(TamHog)) %>%
+  select(SEGMENTO,ZONA,TamHog) %>%
+  group_by(ZONA,SEGMENTO) %>%
+  summarise(Mta=n()) %>%
+  arrange(desc(ZONA),SEGMENTO)
+
+head(UPMs)
+
+
+#Se asigna proporcionalmente la muestra a cada estrato
+
+#Recordemos la distribución proporcional de los estratos:
+nsizeProp
+
+#Cálculo del número de UPMs por estrato
+b<-5
+aurbano<- ceiling(nsizeProp[1,1]/b)
+arural<- ceiling(nsizeProp[2,1]/b)
+
+#Unir en un solo objeto para facilitar input de función
+asizeppt<-rbind(aurbano,arural)
+asizeppt
+
+
+#Selección de la muestra con PPT(sistemática)
+install.packages("pps")
+library(pps)
+muestrappt<-ppssstrat(sizes=UPMs$Mta,stratum=UPMs$ZONA,n=asizeppt[,1])
+muestraUPMs<-UPMs[muestrappt,]
+
+#Muestra de la selección
+head(muestraUPMs)
+tail(muestraUPMs)
+
+
+#Procedimiento para seleccionar submuestras en cada cluster de tamaño fijo
+
+#Listado de segmentos seleccionados
+segs<- unique(muestraUPMs$SEGMENTO)
+sample<- list()
+
+#Identifica el número de columna del id(se requiere para el ciclo)
+
+idcolnum<-which( colnames(df)=="id" )
+
+#Ciclo para seleccionar la muestra en cada segmento
+for(i in 1:length(segs)){
+  subsample<-data.frame(df[which(df$SEGMENTO==segs[i]),])
+  sample[[i]]<-sys.sample(nrow(subsample),b)
+  #Previene de los números que se pasan del total del segmento
+  #if(sample[[i]][b]>nrow(subsample)){
+  #  sample[[i]][b]<-1
+  #  }
+  #Asigna en cada elemento de las submuestras los elem. seleccionados
+  sample[[i]]<-subsample[unlist(sample[[i]]),idcolnum]
+}
+
+#Genera el data frame de ids seleccionados(ya que estaban en una lista)
+sampledf<-data.frame(id=unlist(sample))
+
+#Uniendo el data frame de datos con la muestra seleccionada mendiante la llave creada
+muestrappt<-inner_join(unique(sampledf),unique(df),by="id")
+
+#Verificar el procedimiento
+head(muestrappt)
+install.packages("descr")
+library(descr)
+freq(muestrappt$ZONA)
+@
+
+
+
+\end{document}
